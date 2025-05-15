@@ -10,6 +10,7 @@ plugins {
     alias(libs.plugins.composeMultiplatform)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
+    kotlin("plugin.serialization") version "1.9.0"
 }
 
 kotlin {
@@ -22,7 +23,7 @@ kotlin {
     
     jvm("desktop")
     
-    @OptIn(ExperimentalWasmDsl::class)
+    /*@OptIn(ExperimentalWasmDsl::class)
     wasmJs {
         moduleName = "composeApp"
         browser {
@@ -40,43 +41,75 @@ kotlin {
             }
         }
         binaries.executable()
-    }
+    }*/
     
     sourceSets {
-        val desktopMain by getting
-        
-        androidMain.dependencies {
-            implementation(compose.preview)
-            implementation(libs.androidx.activity.compose)
+        val commonMain by getting {
+            dependencies {
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.ui)
+                implementation(compose.components.resources)
+                implementation("org.jetbrains.compose.ui:ui-tooling-preview:1.5.10")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+                implementation("io.ktor:ktor-client-core:2.3.3")
+                implementation("io.ktor:ktor-client-cio:2.3.3")
+                implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
+
+            }
         }
-        commonMain.dependencies {
-            implementation(compose.runtime)
-            implementation(compose.foundation)
-            implementation(compose.material3)
-            implementation(compose.ui)
-            implementation(compose.components.resources)
-            implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtimeCompose)
+
+        val androidMain by getting {
+            dependencies {
+                implementation(libs.androidx.activity.compose)
+                implementation(libs.androidx.lifecycle.runtimeCompose)
+                implementation(libs.androidx.lifecycle.viewmodel)
+                implementation("io.ktor:ktor-client-core:2.3.3")
+                implementation("io.ktor:ktor-client-cio:2.3.3")
+                implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
+                implementation("io.coil-kt:coil-compose:2.4.0")
+                implementation("androidx.compose.material:material-icons-extended:1.5.1")
+
+                implementation("androidx.compose.material:material-icons-core:1.5.1")
+            }
         }
-        commonTest.dependencies {
-            implementation(libs.kotlin.test)
+
+        val desktopMain by getting {
+            dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation("io.ktor:ktor-client-core:2.3.3")
+                implementation("io.ktor:ktor-client-cio:2.3.3")
+
+                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.7.3")
+            }
         }
-        desktopMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutinesSwing)
+
+        /*val wasmJsMain by getting {
+            dependencies {
+
+                // Aquí puedes agregar versión real de fetchPokemon para Web si quieres luego
+            }
+        }*/
+
+        val commonTest by getting {
+            dependencies {
+                implementation(kotlin("test"))
+            }
         }
     }
 }
 
 android {
     namespace = "org.example.pokedexmultiplataforma"
-    compileSdk = libs.versions.android.compileSdk.get().toInt()
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "org.example.pokedexmultiplataforma"
-        minSdk = libs.versions.android.minSdk.get().toInt()
-        targetSdk = libs.versions.android.targetSdk.get().toInt()
+        minSdk = 24
+        targetSdk = 34
         versionCode = 1
         versionName = "1.0"
     }
@@ -94,10 +127,6 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
-}
-
-dependencies {
-    debugImplementation(compose.uiTooling)
 }
 
 compose.desktop {
