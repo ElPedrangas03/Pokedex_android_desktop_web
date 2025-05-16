@@ -6,8 +6,8 @@ import org.jetbrains.kotlin.gradle.targets.js.webpack.KotlinWebpackConfig
 
 plugins {
     alias(libs.plugins.kotlinMultiplatform)
-    alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeMultiplatform)
+    alias(libs.plugins.androidApplication)
     alias(libs.plugins.composeCompiler)
     alias(libs.plugins.composeHotReload)
     kotlin("plugin.serialization") version "1.9.0"
@@ -22,27 +22,15 @@ kotlin {
     }
     
     jvm("desktop")
-    
-    /*@OptIn(ExperimentalWasmDsl::class)
-    wasmJs {
-        moduleName = "composeApp"
+    js("wasmJs", IR) {
         browser {
-            val rootDirPath = project.rootDir.path
-            val projectDirPath = project.projectDir.path
+            binaries.executable()
             commonWebpackConfig {
-                outputFileName = "composeApp.js"
-                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
-                    static = (static ?: mutableListOf()).apply {
-                        // Serve sources to debug inside browser
-                        add(rootDirPath)
-                        add(projectDirPath)
-                    }
-                }
+                outputFileName = "wasmJs.js"
             }
         }
-        binaries.executable()
-    }*/
-    
+    }
+
     sourceSets {
         val commonMain by getting {
             dependencies {
@@ -51,13 +39,7 @@ kotlin {
                 implementation(compose.material3)
                 implementation(compose.ui)
                 implementation(compose.components.resources)
-                implementation("org.jetbrains.compose.ui:ui-tooling-preview:1.5.10")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-                implementation("io.ktor:ktor-client-core:2.3.3")
-                implementation("io.ktor:ktor-client-cio:2.3.3")
-                implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
-
             }
         }
 
@@ -93,12 +75,20 @@ kotlin {
             }
         }
 
-        /*val wasmJsMain by getting {
+        val wasmJsMain by getting {
             dependencies {
+                implementation("io.ktor:ktor-client-js:2.3.4")
+                implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
+                implementation("org.jetbrains.compose.components:components-resources:1.6.1")
+                implementation("org.jetbrains.compose.web:web-core:1.6.0")
 
-                // Aquí puedes agregar versión real de fetchPokemon para Web si quieres luego
+                implementation(compose.runtime)
+                implementation(compose.foundation)
+                implementation(compose.material3)
+                implementation(compose.web.core)
             }
-        }*/
+        }
 
         val commonTest by getting {
             dependencies {
