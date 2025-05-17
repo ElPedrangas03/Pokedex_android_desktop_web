@@ -40,6 +40,7 @@ kotlin {
                 implementation(compose.ui)
                 implementation(compose.components.resources)
                 implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
+                implementation("org.jetbrains.compose.web:web-core:1.6.0")
             }
         }
 

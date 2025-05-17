@@ -1,22 +1,14 @@
 package org.example.pokedexmultiplataforma.compose
 
-import androidx.compose.material3.*
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.style.TextAlign
-import org.example.pokedexmultiplataforma.api.PokemonUI
-import org.jetbrains.compose.web.css.*
 import org.jetbrains.compose.web.dom.*
+import org.jetbrains.compose.web.css.*
+import org.example.pokedexmultiplataforma.api.PokemonUI
+import org.jetbrains.compose.web.css.keywords.auto
 
 @Composable
-actual fun PokemonCard(pokemon: PokemonUI) {
+actual fun PokemonCardWasm(pokemon: PokemonUI) {
     Div({
         style {
             property("width", "100%")
@@ -59,7 +51,7 @@ actual fun PokemonCard(pokemon: PokemonUI) {
             }
 
             // Imagen del Pokémon
-            RemoteImage(pokemon.imageUrl, size = 220)
+            PokemonImage(pokemon.imageUrl)
 
             // Tipos del Pokémon
             Div({
@@ -71,7 +63,7 @@ actual fun PokemonCard(pokemon: PokemonUI) {
                 }
             }) {
                 pokemon.types.forEach { type ->
-                    RemoteImage(type.imageUrl, size = 100)
+                    PokemonImage(type.imageUrl)
                 }
             }
 
@@ -97,33 +89,3 @@ actual fun PokemonCard(pokemon: PokemonUI) {
         }
     }
 }
-
-@Composable
-fun RemoteImage(url: String, size: Int) {
-    Div({
-        style {
-            display(DisplayStyle.Flex)
-            justifyContent(JustifyContent.Center)
-            alignItems(AlignItems.Center)
-            marginBottom(16.px)
-        }
-    }) {
-        Img(src = url, attrs = {
-            attr("alt", "image")
-            style {
-                width(size.px)
-                height(size.px)
-                property("object-fit", "contain")
-                borderRadius(12.px)
-                border {
-                    width(2.px)
-                    style(LineStyle.Solid)
-                    color(Color("#B0BEC5"))
-                }
-                backgroundColor(Color("#FFFFFF"))
-                property("box-shadow", "0 2px 6px rgba(0,0,0,0.15)")
-            }
-        })
-    }
-}
-
