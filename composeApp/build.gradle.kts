@@ -13,6 +13,7 @@ plugins {
     kotlin("plugin.serialization") version "1.9.0"
 }
 
+@OptIn(ExperimentalWasmDsl::class)
 kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -22,13 +23,25 @@ kotlin {
     }
     
     jvm("desktop")
-    js("wasmJs", IR) {
+
+    @OptIn(ExperimentalWasmDsl::class)
+    wasmJs {
+        moduleName = "composeApp"
         browser {
-            binaries.executable()
+            val rootDirPath = project.rootDir.path
+            val projectDirPath = project.projectDir.path
             commonWebpackConfig {
-                outputFileName = "wasmJs.js"
+                outputFileName = "composeApp.js"
+                devServer = (devServer ?: KotlinWebpackConfig.DevServer()).apply {
+                    static = (static ?: mutableListOf()).apply {
+                        // Serve sources to debug inside browser
+                        add(rootDirPath)
+                        add(projectDirPath)
+                    }
+                }
             }
         }
+        binaries.executable()
     }
 
     sourceSets {
@@ -39,8 +52,18 @@ kotlin {
                 implementation(compose.material3)
                 implementation(compose.ui)
                 implementation(compose.components.resources)
-                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
-                implementation("org.jetbrains.compose.web:web-core:1.6.0")
+
+                // Ktor Client core + JSON (3.1.3)
+                implementation("io.ktor:ktor-client-core:3.1.3")
+                implementation("io.ktor:ktor-client-content-negotiation:3.1.3")
+                implementation("io.ktor:ktor-serialization-kotlinx-json:3.1.3")
+
+                // Kotlinx Serialization
+                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.0")
+
+                // Carga de imágenes multiplataforma (Kamel 1.0.5)
+                implementation("media.kamel:kamel-image-default:1.0.5")
+                implementation(compose.materialIconsExtended)
             }
         }
 
@@ -49,45 +72,21 @@ kotlin {
                 implementation(libs.androidx.activity.compose)
                 implementation(libs.androidx.lifecycle.runtimeCompose)
                 implementation(libs.androidx.lifecycle.viewmodel)
-                implementation("io.ktor:ktor-client-core:2.3.3")
-                implementation("io.ktor:ktor-client-cio:2.3.3")
-                implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
-                implementation("io.coil-kt:coil-compose:2.4.0")
-                implementation("androidx.compose.material:material-icons-extended:1.5.1")
-
-                implementation("androidx.compose.material:material-icons-core:1.5.1")
             }
         }
 
         val desktopMain by getting {
             dependencies {
                 implementation(compose.desktop.currentOs)
-                implementation("io.ktor:ktor-client-core:2.3.3")
-                implementation("io.ktor:ktor-client-cio:2.3.3")
-                implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
-                implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.3")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-                implementation("org.jetbrains.kotlinx:kotlinx-coroutines-swing:1.7.3")
-
-                implementation("org.jetbrains.compose.ui:ui-graphics")
-                implementation("io.github.qdsfdhvh:image-loader:1.5.1")
                 implementation(compose.material3)
             }
         }
 
         val wasmJsMain by getting {
             dependencies {
-                implementation("io.ktor:ktor-client-js:2.3.4")
-                implementation("io.ktor:ktor-client-content-negotiation:2.3.3")
-                implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
-                implementation("org.jetbrains.compose.components:components-resources:1.6.1")
-                implementation("org.jetbrains.compose.web:web-core:1.6.0")
-
                 implementation(compose.runtime)
                 implementation(compose.foundation)
                 implementation(compose.material3)
-                implementation(compose.web.core)
             }
         }
 
@@ -124,6 +123,9 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+}
+dependencies {
+    implementation(libs.androidx.foundation.android)
 }
 
 compose.desktop {

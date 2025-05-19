@@ -3,8 +3,8 @@ package org.example.pokedexmultiplataforma.api
 data class PokemonUI(
     val name: String,
     val number: Int,
-    val types: List<TypeWithIcon>,
     val imageUrl: String,
+    val types: List<TypeWithIcon>,
     val description: String
 )
 
